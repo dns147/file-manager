@@ -37,6 +37,16 @@ const handleCommand = (cmd) => {
     } catch {
       console.log('\nOperation failed. Directory not found.\n');
     }
+  } else if (cmd === 'up') {
+    const directoryPath = path.join(homeDir, '../');
+
+    try {
+      chdir(directoryPath);
+      homeDir = directoryPath;
+      console.log(`\nYou are currently in ${homeDir}\n`);
+    } catch {
+      console.log('\nOperation failed. Directory not found.\n');
+    }
   } else {
     console.log('\nInvalid input.\n');
   }
