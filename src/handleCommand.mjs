@@ -1,4 +1,4 @@
-import { createReadStream, readdir } from 'node:fs';
+import { createReadStream, open, readdir } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -57,8 +57,8 @@ const handleCommand = (cmd) => {
 
       stream.on('data', (data) => {
         const dataFile = Buffer.from(data);
-        process.stdout.write(dataFile);
-        console.log('\n');
+        console.log(`\n${dataFile.toString()}`);
+        console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
       });
 
       stream.on('error', () => {
@@ -67,6 +67,15 @@ const handleCommand = (cmd) => {
     } catch {
       console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
     }
+  } else if (cmd.slice(0, 3) === 'add') {
+    const fileName = cmd.split('add ')[1];
+    const filePath = path.join(homeDir, fileName);
+
+    open(filePath, 'w', (err) => {
+      if (err) {
+        console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+      }
+    });
   } else {
     console.log('\x1b[31m\nInvalid input.\n\x1b[0m');
   }
