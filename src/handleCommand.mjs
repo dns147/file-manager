@@ -1,4 +1,4 @@
-import { readdir } from 'node:fs';
+import { createReadStream, readdir } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -16,7 +16,7 @@ const userName = getUserName();
 
 const handleCommand = (cmd) => {
   if (cmd === '.exit') {
-    console.log(`\x1b[37;44m\nThank you for using File Manager, ${userName}, goodbye!\x1b[0m`);
+    console.log(`\x1b[34m\nThank you for using File Manager, ${userName}, goodbye!\x1b[0m`);
     process.exit(0);
   } else if (cmd === 'ls') {
     readdir(homeDir, 'utf8', (err, files) => {
@@ -48,6 +48,24 @@ const handleCommand = (cmd) => {
       console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
     } catch {
       console.log('\x1b[31m\nOperation failed. Directory not found.\n\x1b[0m');
+    }
+  } else if (cmd.slice(0, 3) === 'cat') {
+    try {
+      const fileName = cmd.split('cat ')[1];
+      const filePath = path.join(homeDir, fileName);
+      const stream = createReadStream(filePath);
+
+      stream.on('data', (data) => {
+        const dataFile = Buffer.from(data);
+        process.stdout.write(dataFile);
+        console.log('\n');
+      });
+
+      stream.on('error', () => {
+        console.log('\x1b[31m\nOperation failed. File not found.\n\x1b[0m');
+      });
+    } catch {
+      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
     }
   } else {
     console.log('\x1b[31m\nInvalid input.\n\x1b[0m');
