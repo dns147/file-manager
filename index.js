@@ -1,19 +1,27 @@
 import * as readline from 'node:readline';
 import { getUserName } from "./src/user.mjs";
+import { homedir } from 'node:os';
+import { makeCommand } from './src/nwd.mjs';
 
 const userName = getUserName();
-console.log(`Welcome to the File Manager, ${userName}!\n`);
-
+const userHomeDir = homedir();
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
+  prompt: `\nYou are currently in ${userHomeDir}\n\n`,
 });
 
-const eventExit = (line) => {
+console.log(`Welcome to the File Manager, ${userName}!`);
+rl.prompt();
+
+const eventCommand = (line) => {
   if (line === '.exit') {
     console.log(`\nThank you for using File Manager, ${userName}, goodbye!`);
     process.exit(0);
   }
+
+  makeCommand(line);
+  rl.prompt();
 };
 
 const eventSigint = () => {
@@ -21,5 +29,5 @@ const eventSigint = () => {
   process.exit(0);
 };
 
-rl.on('line', eventExit)
+rl.on('line', eventCommand)
   .on('SIGINT', eventSigint);
