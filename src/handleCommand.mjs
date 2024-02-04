@@ -1,4 +1,4 @@
-import { createReadStream, open, readdir } from 'node:fs';
+import { createReadStream, open, readdir, rename } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -26,7 +26,7 @@ const handleCommand = (cmd) => {
       
       const filesSorted = sortFiles(files);
       console.table(filesSorted);
-      console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
     });
   } else if (cmd.slice(0, 2) === 'cd') {
     const directoryName = cmd.split('cd ')[1];
@@ -35,7 +35,7 @@ const handleCommand = (cmd) => {
     try {
       chdir(directoryPath);
       homeDir = directoryPath;
-      console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
     } catch {
       console.log('\x1b[31m\nOperation failed. Directory not found.\n\x1b[0m');
     }
@@ -45,7 +45,7 @@ const handleCommand = (cmd) => {
     try {
       chdir(directoryPath);
       homeDir = directoryPath;
-      console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
     } catch {
       console.log('\x1b[31m\nOperation failed. Directory not found.\n\x1b[0m');
     }
@@ -58,7 +58,7 @@ const handleCommand = (cmd) => {
       stream.on('data', (data) => {
         const dataFile = Buffer.from(data);
         console.log(`\n${dataFile.toString()}`);
-        console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+        console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
       });
 
       stream.on('error', () => {
@@ -68,14 +68,36 @@ const handleCommand = (cmd) => {
       console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
     }
   } else if (cmd.slice(0, 3) === 'add') {
-    const fileName = cmd.split('add ')[1];
-    const filePath = path.join(homeDir, fileName);
+    try {
+      const fileName = cmd.split('add ')[1];
+      const filePath = path.join(homeDir, fileName);
 
-    open(filePath, 'w', (err) => {
-      if (err) {
-        console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
-      }
-    });
+      open(filePath, 'w', (err) => {
+        if (err) {
+          console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+        }
+        console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      });
+    } catch {
+      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+    }
+  } else if (cmd.slice(0, 2) === 'rn') {
+    try {
+      const splitedCmd = cmd.split(' ');
+      const fileName = splitedCmd[1];
+      const filePath = path.join(homeDir, fileName);
+      const newFileName = splitedCmd[2];
+      const newFilePath = path.join(homeDir, newFileName);
+
+      rename(filePath, newFilePath, (err) => {
+        if (err) {
+          console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+        }
+        console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      });
+    } catch {
+      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+    }
   } else {
     console.log('\x1b[31m\nInvalid input.\n\x1b[0m');
   }
