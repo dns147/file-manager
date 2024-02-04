@@ -167,11 +167,17 @@ const moveFile = (cmd) => {
 
 const deleteFile = (cmd) => {
   try {
-    // const splitedCmd = cmd.split(' ');
-    // const fileName = splitedCmd[1];
-    // const filePath = path.join(homeDir, fileName);
-    // const newDirectory = splitedCmd[2];
-    // const newDirectoryPath = path.join(homeDir, newFileName);
+    const splitedCmd = cmd.split(' ');
+    const fileName = splitedCmd[1];
+    const filePath = path.join(homeDir, fileName);
+
+    unlink(filePath, (err) => {
+      if (err) {
+        console.log('\x1b[31m\nOperation failed. File not found.\n\x1b[0m');
+      }
+    });
+
+    console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
   } catch {
     console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
   }

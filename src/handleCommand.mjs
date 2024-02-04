@@ -7,7 +7,8 @@ import {
   addFile, 
   renameFile, 
   copyFile,
-  moveFile
+  moveFile,
+  deleteFile
 } from './runCommands.mjs';
 
 const handleCommand = (cmd) => {
@@ -29,6 +30,8 @@ const handleCommand = (cmd) => {
     copyFile(cmd);
   } else if (cmd.slice(0, 2) === 'mv') {
     moveFile(cmd);
+  } else if (cmd.slice(0, 2) === 'rm') {
+    deleteFile(cmd);
   } else {
     console.log('\x1b[31m\nInvalid input.\n\x1b[0m');
   }
