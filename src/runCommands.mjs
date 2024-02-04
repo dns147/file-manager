@@ -3,7 +3,7 @@ import { homedir } from 'node:os';
 import { sortFiles } from "./sortFiles.mjs";
 import path from "node:path";
 import { chdir } from "node:process";
-import { createReadStream, createWriteStream, open, readdir, rename } from "node:fs";
+import { createReadStream, createWriteStream, open, readdir, rename, unlink } from "node:fs";
 
 const userName = getUserName();
 let homeDir = homedir();
@@ -133,11 +133,33 @@ const copyFile = (cmd) => {
 
 const moveFile = (cmd) => {
   try {
-    // const splitedCmd = cmd.split(' ');
-    // const fileName = splitedCmd[1];
-    // const filePath = path.join(homeDir, fileName);
-    // const newDirectory = splitedCmd[2];
-    // const newDirectoryPath = path.join(homeDir, newFileName);
+    const splitedCmd = cmd.split(' ');
+    const fileName = splitedCmd[1];
+    const filePath = path.join(homeDir, fileName);
+    const newDirectory = splitedCmd[2];
+    const newDirectoryPath = path.join(homeDir, newDirectory);
+    const readable = createReadStream(filePath);
+    const writable = createWriteStream(newDirectoryPath);
+
+    readable.on('error', () => {
+      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+    });
+
+    writable.on('error', () => {
+      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+    });
+
+    readable.pipe(writable);
+
+    writable.on('finish', () => {
+      unlink(filePath, (err) => {
+        if (err) {
+          console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+        }
+      });
+    });
+
+    console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
   } catch {
     console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
   }
