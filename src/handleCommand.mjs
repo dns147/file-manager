@@ -5,7 +5,8 @@ import {
   upDirectory, 
   readFile, 
   addFile, 
-  renameFile 
+  renameFile, 
+  copyFile
 } from './runCommands.mjs';
 
 const handleCommand = (cmd) => {
@@ -23,6 +24,8 @@ const handleCommand = (cmd) => {
     addFile(cmd);
   } else if (cmd.slice(0, 2) === 'rn') {
     renameFile(cmd);
+  } else if (cmd.slice(0, 2) === 'cp') {
+    copyFile(cmd);
   } else {
     console.log('\x1b[31m\nInvalid input.\n\x1b[0m');
   }
