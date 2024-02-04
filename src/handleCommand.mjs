@@ -8,8 +8,9 @@ import {
   renameFile, 
   copyFile,
   moveFile,
-  deleteFile
-} from './runCommands.mjs';
+  deleteFile,
+} from './runFsCommands.mjs';
+import { runOsCommand } from './runOsCommands.mjs';
 
 const handleCommand = (cmd) => {
   if (cmd === '.exit') {
@@ -32,6 +33,8 @@ const handleCommand = (cmd) => {
     moveFile(cmd);
   } else if (cmd.slice(0, 2) === 'rm') {
     deleteFile(cmd);
+  } else if (cmd.slice(0, 2) === 'os') {
+    runOsCommand(cmd);
   } else {
     console.log('\x1b[31m\nInvalid input.\n\x1b[0m');
   }
