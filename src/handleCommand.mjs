@@ -11,6 +11,8 @@ import {
   deleteFile,
   runOsCommand,
   hashFile,
+  compressFile,
+  decompressFile,
 } from './runCommands.mjs';
 
 const handleCommand = (cmd) => {
@@ -38,6 +40,10 @@ const handleCommand = (cmd) => {
     runOsCommand(cmd);
   } else if (cmd.slice(0, 4) === 'hash') {
     hashFile(cmd);
+  } else if (cmd.slice(0, 8) === 'compress') {
+    compressFile(cmd);
+  } else if (cmd.slice(0, 8) === 'decompress') {
+    decompressFile(cmd);
   } else {
     console.log('\x1b[31m\nInvalid input.\n\x1b[0m');
   }
