@@ -9,8 +9,8 @@ import {
   copyFile,
   moveFile,
   deleteFile,
-} from './runFsCommands.mjs';
-import { runOsCommand } from './runOsCommands.mjs';
+  runOsCommand,
+} from './runCommands.mjs';
 
 const handleCommand = (cmd) => {
   if (cmd === '.exit') {
