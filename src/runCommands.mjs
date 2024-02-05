@@ -1,5 +1,5 @@
 import { getUserName } from "./getUserName.mjs";
-import { EOL, cpus, homedir } from 'node:os';
+import { EOL, cpus, homedir, userInfo } from 'node:os';
 import { sortFiles } from "./sortFiles.mjs";
 import path from "node:path";
 import { chdir } from "node:process";
@@ -185,6 +185,7 @@ const deleteFile = (cmd) => {
 
 const runOsCommand = (cmd) => {
   const splitedCmd = cmd.split(' ');
+  const currentUserInfo = userInfo();
 
   switch (splitedCmd[1]) {
     case '--EOL':
@@ -201,7 +202,12 @@ const runOsCommand = (cmd) => {
       break;
     
     case '--homedir':
-      console.log('\n', homeDir);
+      console.log('\n', currentUserInfo.homedir);
+      console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      break;
+
+    case '--username':
+      console.log('\n', currentUserInfo.username);
       console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
       break;
   
