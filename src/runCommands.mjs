@@ -5,7 +5,7 @@ import path from "node:path";
 import { chdir } from "node:process";
 import { createReadStream, createWriteStream, open, readdir, rename, unlink } from "node:fs";
 import { createHash } from "node:crypto";
-import { createBrotliCompress } from "node:zlib";
+import { createBrotliCompress, createBrotliDecompress } from "node:zlib";
 
 const userName = getUserName();
 let homeDir = homedir();
@@ -279,7 +279,7 @@ const compressFile = (cmd) => {
     });
 
     stream.on('finish', () => {
-      console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      console.log(`\x1b[32m\nDone compressing! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
     });
   } catch {
     console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
@@ -287,7 +287,36 @@ const compressFile = (cmd) => {
 };
 
 const decompressFile = (cmd) => {
+  try {
+    const splitedCmd = cmd.split(' ');
+    const fileName = splitedCmd[1];
+    const filePath = path.join(homeDir, fileName);
+    const newDirectory = splitedCmd[2];
+    const newDirectoryPath = path.join(homeDir, newDirectory);
 
+    const readable = createReadStream(filePath);
+    const writable = createWriteStream(newDirectoryPath);
+    const brotli = createBrotliDecompress();
+    const stream = readable.pipe(brotli).pipe(writable);
+
+    readable.on('error', () => {
+      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+    });
+
+    writable.on('error', () => {
+      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+    });
+
+    stream.on('error', () => {
+      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+    });
+
+    stream.on('finish', () => {
+      console.log(`\x1b[32m\nDone decompressing! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+    });
+  } catch {
+    console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+  }
 };
 
 export { 

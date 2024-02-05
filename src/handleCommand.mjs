@@ -42,7 +42,7 @@ const handleCommand = (cmd) => {
     hashFile(cmd);
   } else if (cmd.slice(0, 8) === 'compress') {
     compressFile(cmd);
-  } else if (cmd.slice(0, 8) === 'decompress') {
+  } else if (cmd.slice(0, 10) === 'decompress') {
     decompressFile(cmd);
   } else {
     console.log('\x1b[31m\nInvalid input.\n\x1b[0m');
