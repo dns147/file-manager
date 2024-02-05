@@ -1,5 +1,5 @@
 import { getUserName } from "./getUserName.mjs";
-import { EOL, cpus, homedir, userInfo } from 'node:os';
+import { EOL, arch, cpus, homedir, userInfo } from 'node:os';
 import { sortFiles } from "./sortFiles.mjs";
 import path from "node:path";
 import { chdir } from "node:process";
@@ -208,6 +208,11 @@ const runOsCommand = (cmd) => {
 
     case '--username':
       console.log('\n', currentUserInfo.username);
+      console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      break;
+
+    case '--architecture':
+      console.log('\n', arch());
       console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
       break;
   
