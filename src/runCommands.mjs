@@ -4,6 +4,7 @@ import { sortFiles } from "./sortFiles.mjs";
 import path from "node:path";
 import { chdir } from "node:process";
 import { createReadStream, createWriteStream, open, readdir, rename, unlink } from "node:fs";
+import { createHash } from "node:crypto";
 
 const userName = getUserName();
 let homeDir = homedir();
@@ -222,6 +223,35 @@ const runOsCommand = (cmd) => {
   }
 };
 
+const hashFile = (cmd) => {
+  try {
+    const splitedCmd = cmd.split(' ');
+    const fileName = splitedCmd[1];
+    const filePath = path.join(homeDir, fileName);
+    const hash = createHash('sha256').setEncoding('hex');
+
+    const readable = createReadStream(filePath);
+
+    readable.on('error', () => {
+      console.log('\x1b[31m\nOperation failed. File not found.\n\x1b[0m');
+    });
+
+    readable.pipe(hash).on('finish', () => {
+      const fileHash = hash.read();
+      const stream = new WritableStream({
+        write(chunk) {
+          console.log('\n', chunk);
+          console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+        },
+      });
+
+      stream.getWriter().write(fileHash);
+    });
+  } catch {
+    console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
+  }
+};
+
 export { 
   exit,
   listFiles,
@@ -234,4 +264,5 @@ export {
   moveFile,
   deleteFile,
   runOsCommand,
+  hashFile,
 };
