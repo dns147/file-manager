@@ -5,7 +5,7 @@ import path from "node:path";
 import { chdir } from "node:process";
 import { createReadStream, createWriteStream, open, readdir, rename, unlink } from "node:fs";
 import { createHash } from "node:crypto";
-import { createBrotliCompress, createBrotliDecompress } from "node:zlib";
+import { createCompressStream, createDecompressStream } from "./createStream.mjs";
 
 const userName = getUserName();
 let homeDir = homedir();
@@ -18,7 +18,7 @@ const exit = () => {
 const listFiles = () => {
   readdir(homeDir, 'utf8', (err, files) => {
     if (err) {
-      throw err;
+      console.log('\x1b[31m\nOperation failed. Directory not found.\n\x1b[0m');
     }
     
     const filesSorted = sortFiles(files);
@@ -28,10 +28,10 @@ const listFiles = () => {
 };
 
 const inDirectory = (cmd) => {
-  const directoryName = cmd.split('cd ')[1];
-  const directoryPath = path.join(homeDir, directoryName);
-
   try {
+    const directoryName = cmd.split('cd ')[1];
+    const directoryPath = path.join(homeDir, directoryName);
+
     chdir(directoryPath);
     homeDir = directoryPath;
     console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
@@ -100,7 +100,7 @@ const renameFile = (cmd) => {
       if (err) {
         console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
       }
-      console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+      console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
     });
   } catch {
     console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
@@ -112,8 +112,10 @@ const copyFile = (cmd) => {
     const splitedCmd = cmd.split(' ');
     const fileName = splitedCmd[1];
     const filePath = path.join(homeDir, fileName);
-    const newDirectory = splitedCmd[2];
+
+    const newDirectory = splitedCmd[2] + fileName;
     const newDirectoryPath = path.join(homeDir, newDirectory);
+
     const readable = createReadStream(filePath);
     const writable = createWriteStream(newDirectoryPath);
 
@@ -127,7 +129,7 @@ const copyFile = (cmd) => {
 
     readable.pipe(writable);
 
-    console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+    console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
   } catch {
     console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
   }
@@ -138,8 +140,10 @@ const moveFile = (cmd) => {
     const splitedCmd = cmd.split(' ');
     const fileName = splitedCmd[1];
     const filePath = path.join(homeDir, fileName);
-    const newDirectory = splitedCmd[2];
+
+    const newDirectory = splitedCmd[2] + fileName;
     const newDirectoryPath = path.join(homeDir, newDirectory);
+    
     const readable = createReadStream(filePath);
     const writable = createWriteStream(newDirectoryPath);
 
@@ -161,7 +165,7 @@ const moveFile = (cmd) => {
       });
     });
 
-    console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+    console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
   } catch {
     console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
   }
@@ -179,7 +183,7 @@ const deleteFile = (cmd) => {
       }
     });
 
-    console.log(`\x1b[32m\nDone! You are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
+    console.log(`\x1b[32m\nYou are currently in\x1b[0m \x1b[33m${homeDir}\n\x1b[0m`);
   } catch {
     console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
   }
@@ -255,24 +259,7 @@ const hashFile = (cmd) => {
 
 const compressFile = (cmd) => {
   try {
-    const splitedCmd = cmd.split(' ');
-    const fileName = splitedCmd[1];
-    const filePath = path.join(homeDir, fileName);
-    const newDirectory = splitedCmd[2];
-    const newDirectoryPath = path.join(homeDir, newDirectory);
-
-    const readable = createReadStream(filePath);
-    const writable = createWriteStream(newDirectoryPath);
-    const brotli = createBrotliCompress();
-    const stream = readable.pipe(brotli).pipe(writable);
-
-    readable.on('error', () => {
-      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
-    });
-
-    writable.on('error', () => {
-      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
-    });
+    const stream = createCompressStream(cmd, homeDir);
 
     stream.on('error', () => {
       console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
@@ -288,24 +275,7 @@ const compressFile = (cmd) => {
 
 const decompressFile = (cmd) => {
   try {
-    const splitedCmd = cmd.split(' ');
-    const fileName = splitedCmd[1];
-    const filePath = path.join(homeDir, fileName);
-    const newDirectory = splitedCmd[2];
-    const newDirectoryPath = path.join(homeDir, newDirectory);
-
-    const readable = createReadStream(filePath);
-    const writable = createWriteStream(newDirectoryPath);
-    const brotli = createBrotliDecompress();
-    const stream = readable.pipe(brotli).pipe(writable);
-
-    readable.on('error', () => {
-      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
-    });
-
-    writable.on('error', () => {
-      console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
-    });
+    const stream = createDecompressStream(cmd, homeDir);
 
     stream.on('error', () => {
       console.log('\x1b[31m\nOperation failed.\n\x1b[0m');
